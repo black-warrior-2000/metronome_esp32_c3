@@ -1,0 +1,17 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPathWin": "C:\\Users\\blockyang\\esp\\v5.4\\esp-idf",
+    "idf.pythonInstallPath": "C:\\Users\\blockyang\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.openOcdConfigs": [
+        "board/esp32c3-builtin.cfg"
+    ],
+    "idf.portWin": "COM11",
+    "idf.toolsPathWin": "C:\\Users\\blockyang\\.espressif",
+    "idf.customExtraVars": {
+        "IDF_TARGET": "esp32c3"
+    },
+    "idf.flashType": "JTAG",
+    "files.associations": {
+        "esp_log.h": "c"
+    }
+}

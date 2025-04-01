@@ -1,0 +1,4 @@
+# pwm_component组件编译配置
+idf_component_register(SRCS "src/pwm.c"
+                       INCLUDE_DIRS "inc"
+                       REQUIRES driver)
