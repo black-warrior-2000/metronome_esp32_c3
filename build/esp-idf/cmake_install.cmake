@@ -544,11 +544,21 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("D:/Develop/metronome_esp32_c3/build/esp-idf/main/cmake_install.cmake")
+  include("D:/Develop/metronome_esp32_c3/build/esp-idf/key/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("D:/Develop/metronome_esp32_c3/build/esp-idf/pwm/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("D:/Develop/metronome_esp32_c3/build/esp-idf/encoder_key/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("D:/Develop/metronome_esp32_c3/build/esp-idf/main/cmake_install.cmake")
 endif()
 

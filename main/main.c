@@ -15,6 +15,8 @@
 
 /* Component  */
 #include "pwm.h"
+#include "key.h"
+#include "encoder_key.h"
 
 void app_main(void)
 {
@@ -45,9 +47,16 @@ void app_main(void)
 
     printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 
+    ledc_init();
+    printf("pwm init \r\n");
+    Encoder_Init();
+    printf("timer init \r\n");
+
+
     while(1){
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        printf("blockyang test\n");
+         vTaskDelay(1000 / portTICK_PERIOD_MS);
+        // printf("blockyang test\n");
+        // ledc_get_frequency();
     }
     // should not run below code
     for (int i = 10; i >= 0; i--) {

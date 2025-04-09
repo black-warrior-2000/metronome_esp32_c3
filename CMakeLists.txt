@@ -5,10 +5,20 @@ cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 # 定义项目组件列表
-set(
-    pwm                     # PWM组件（components/pwm）
-    # 其他自定义组件（如：uart_component等）
-)
+# set(
+#     pwm                     # PWM组件（components/pwm）
+#     # 其他自定义组件（如：uart_component等）
+# )
+
+
+
+
+#solution 1
+
+
+# set(
+#     main
+# )
 
 
 

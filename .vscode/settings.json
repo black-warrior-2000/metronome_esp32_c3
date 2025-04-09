@@ -10,8 +10,10 @@
     "idf.customExtraVars": {
         "IDF_TARGET": "esp32c3"
     },
-    "idf.flashType": "JTAG",
+    "idf.flashType": "UART",
     "files.associations": {
-        "esp_log.h": "c"
+        "esp_log.h": "c",
+        "ledc.h": "c",
+        "queue.h": "c"
     }
 }

@@ -3,71 +3,83 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-static const char *TAG = "PWM_Component";
+#define LEDC_PWM_MODE
+//#define GENERATE_PWM_MODE
 
 
-static ledc_channel_config_t s_channel;
-static ledc_timer_config_t s_timer;
-static gpio_num_t s_int_gpio;
+#ifdef GENERATE_PWM_MODE
 
-// 中断服务例程（翻转IO）
-static void IRAM_ATTR pwm_irq_handler(void* arg) {
-    ESP_LOGI(TAG, "Interrupt triggered: Toggling PWM GPIO");
-    int current_level = gpio_get_level(s_channel.gpio_num);
-    gpio_set_level(s_channel.gpio_num, !current_level);
-    ESP_LOGD(TAG, "PWM GPIO %d now at level %d", 
-             s_channel.gpio_num, !current_level);
-}
 
-void pwm_init(ledc_channel_t channel, ledc_timer_t timer, 
-              ledc_mode_t mode, uint32_t freq_hz, 
-              gpio_num_t gpio, uint32_t duty)
+#endif
+
+
+#ifdef LEDC_PWM_MODE
+// ledc_timer_config_t ledc_timer = {
+//     .speed_mode       = LEDC_LOW_SPEED_MODE,
+//     .duty_resolution  = ledc_find_suitable_duty_resolution(),
+// }
+// };
+
+
+/*
+ * @brief LEDC PWM
+ * 
+ */
+void ledc_init(void)
 {
-    ESP_LOGI(TAG, "Initializing PWM with GPIO %d and Interrupt GPIO %d", 
-        pwm_gpio, int_gpio);
-        // 配置中断GPIO
-    gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << int_gpio),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_ENABLE,
-        .intr_type = GPIO_INTR_ANYEDGE, // 边沿触发
+   //LEDC PWM 定时器结构体配置 ledc_timer
+    ledc_timer_config_t ledc_timer = {
+    .speed_mode       = LEDC_LOW_SPEED_MODE, //定时器模式  低速
+    .timer_num        = LEDC_TIMER_0,        //设置定时器源0（0-3）
+    .duty_resolution  = LEDC_TIMER_13_BIT,   //将占空比分辨率设置为 13 位  (1-15)
+    .freq_hz          = 1000,                //将pwm输出频率设置   1kHz
+    .clk_cfg          = LEDC_AUTO_CLK        //配置LEDC时钟源，自动选择
     };
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
-    ESP_LOGD(TAG, "Interrupt GPIO %d configured", int_gpio);
-
-    // 注册中断服务
-    ESP_ERROR_CHECK(gpio_install_isr_service(0));
-    ESP_ERROR_CHECK(gpio_isr_handler_add(int_gpio, pwm_irq_handler, NULL));
-    s_int_gpio = int_gpio;
-    ESP_LOGI(TAG, "Interrupt handler registered for GPIO %d", int_gpio);
-
-    // 1. 配置定时器
-    s_timer.speed_mode   = mode;
-    s_timer.duty_resolution = LEDC_TIMER_13_BIT;
-    s_timer.timer_sel    = timer;
-    s_timer.freq_hz      = freq_hz;
-    ESP_ERROR_CHECK(ledc_timer_config(&s_timer));
-    ESP_LOGI(TAG, "Timer configured: mode %s, freq %dHz", 
-             (mode == PWM_MODE_LOW ? "LOW" : "HIGH"), freq_hz);
-
-    // 2. 配置通道
-    s_channel.gpio_num   = gpio;
-    s_channel.speed_mode = mode;
-    s_channel.channel    = channel;
-    s_channel.timer_sel  = timer;
-    s_channel.duty       = duty;
-    ESP_ERROR_CHECK(ledc_channel_config(&s_channel));
-    ESP_LOGI(TAG, "PWM channel configured on GPIO %d", pwm_gpio);
-
-    ledc_set_duty(mode, channel, duty);
-    ledc_update_duty(mode, channel);
-    ESP_LOGD(TAG, "Initial duty set to %d", duty);
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));//配置LEDC定时器
+    
+    //LEDC PWM 通道结构体配置  ledc_channel
+    ledc_channel_config_t ledc_channel = {    
+        .speed_mode     = LEDC_LOW_SPEED_MODE,
+        .channel        = LEDC_CHANNEL_0,    //通道0
+        .timer_sel      = LEDC_TIMER_0,     
+        .intr_type      = LEDC_INTR_DISABLE, //失能LEDC中断
+        .gpio_num       = 6, //输出GPIO6
+        .duty           = 8191 ,  //将占空比设置为 0%
+        .hpoint         = 8191    //LEDC通道的hpoint，最大值为0xfffff
+    };
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 }
 
-void pwm_set_duty_percent(uint8_t percent) {
-    uint32_t duty_value = (percent * LEDC_DUTY_MAX(LEDC_TIMER_13_BIT)) / 100;
-    ESP_LOGI(TAG, "Setting duty to %d%% (%d)", percent, duty_value);
-    ledc_set_duty(s_channel.speed_mode, s_channel.channel, duty_value);
-    ledc_update_duty(s_channel.speed_mode, s_channel.channel);
-    ESP_LOGD(TAG, "Duty updated successfully");
+
+void ledc_get_frequency(void) {
+    uint32_t freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0);
+    printf("ledc_get_frequency :freq = %lu \r\n", freq);
 }
+
+void ledc_set_frequency(void) {
+    ledc_set_freq(LEDC_LOW_SPEED_MODE,LEDC_TIMER_0,5000);
+}
+
+/*
+ * @brief 呼吸效果 渐亮到渐灭
+ * 
+ */
+// void Breath_Blink(void)
+// {
+//     // 初始化淡入淡出服务
+//     ledc_fade_func_install(0);    // 注册LEDC服务，在调用前使用，参数是作为是否允许中断
+
+//     //参数：指定速度模式  LEDC通道  衰落的目标占空比 衰落的最长时间（ms）
+//     ledc_set_fade_with_time(LEDC_MODE,LEDC_CHANNEL, 8192,500);//在有限的时间内设置LEDC淡入功能
+//     //参数：指定速度模式  LEDC通道  淡入淡出功能
+//     ledc_fade_start(LEDC_MODE,LEDC_CHANNEL, LEDC_FADE_NO_WAIT);//开始LEDC衰落
+
+//     vTaskDelay(200);
+  
+//     ledc_set_fade_with_time(LEDC_MODE,LEDC_CHANNEL, 0,500);
+//     ledc_fade_start(LEDC_MODE,LEDC_CHANNEL, LEDC_FADE_NO_WAIT);
+// }
+
+#endif
+
+
