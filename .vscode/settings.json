@@ -14,6 +14,7 @@
     "files.associations": {
         "esp_log.h": "c",
         "ledc.h": "c",
-        "queue.h": "c"
+        "queue.h": "c",
+        "encoder_key.h": "c"
     }
 }

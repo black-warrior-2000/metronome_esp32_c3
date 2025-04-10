@@ -17,9 +17,12 @@
 #include "pwm.h"
 #include "key.h"
 #include "encoder_key.h"
-
+extern QueueHandle_t encoder_queue;
 void app_main(void)
 {
+    static char dat = 0;
+    encoder_queue = xQueueCreate(10, sizeof(int));
+    int encoder_key_state = 0;
     printf("Hello world!\n");
 
     /* Print chip information */
@@ -54,7 +57,24 @@ void app_main(void)
 
 
     while(1){
-         vTaskDelay(1000 / portTICK_PERIOD_MS);
+         //vTaskDelay(1000 / portTICK_PERIOD_MS);
+         if (xQueueReceive(encoder_queue, &encoder_key_state, pdMS_TO_TICKS(2000))) {
+            //printf("encoder_queue receive\n");
+            dat = Encoder_Scan();//扫描编码器是否扭动
+            if( dat != 0 )//如果有转动
+            {
+                if( dat == 2 )
+                {
+                    Encoder_Rotation_left();
+                }
+                else
+                {
+                    Encoder_Rotation_right();
+                }
+
+            }
+         }
+
         // printf("blockyang test\n");
         // ledc_get_frequency();
     }

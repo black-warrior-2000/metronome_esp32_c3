@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "metronome_esp32_c3",
-    "project_version":    "0b81e23-dirty",
+    "project_version":    "e2dfc13-dirty",
     "project_path":       "D:/Develop/metronome_esp32_c3",
     "idf_path":           "C:/Users/blockyang/esp/v5.4/esp-idf",
     "build_dir":          "D:/Develop/metronome_esp32_c3/build",

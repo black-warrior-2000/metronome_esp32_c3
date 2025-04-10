@@ -6,7 +6,7 @@ typedef struct {
     uint64_t event_count;
 } example_queue_element_t;
 
-
+QueueHandle_t encoder_queue = NULL;
 static bool example_timer_on_alarm_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx)
 {
     BaseType_t high_task_awoken = pdFALSE;
@@ -25,21 +25,26 @@ static bool example_timer_on_alarm_cb(gptimer_handle_t timer, const gptimer_alar
 
 static bool encoder_timer_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_data)
 {
-    static char dat = 0;
-    dat = Encoder_Scan();//扫描编码器是否扭动
-    if( dat != 0 )//如果有转动
-    {
-        if( dat == 2 )
-        {
-            Encoder_Rotation_left();
-        }
-        else
-        {
-            Encoder_Rotation_right();
-        }
+    BaseType_t high_task_awoken = pdFALSE;
+    QueueHandle_t queue = (QueueHandle_t)user_data;
+    int encoder_key_state = 0;
+    
+    // dat = Encoder_Scan();//扫描编码器是否扭动
+    // if( dat != 0 )//如果有转动
+    // {
+    //     if( dat == 2 )
+    //     {
+    //         Encoder_Rotation_left();
+    //     }
+    //     else
+    //     {
+    //         Encoder_Rotation_right();
+    //     }
 
-    }
-    return pdTRUE;
+    // }
+
+    xQueueSendFromISR(queue, &encoder_key_state, &high_task_awoken);
+    return high_task_awoken == pdTRUE;
 }
 
 static bool encoder_timer_cb_key(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_data)
@@ -71,7 +76,7 @@ ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &gptimer));
 gptimer_event_callbacks_t cbs = {
     .on_alarm = encoder_timer_cb,
 };
-ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, NULL));
+ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, encoder_queue));
 
 ESP_LOGI(TAG, "Enable gptimer");
 ESP_ERROR_CHECK(gptimer_enable(gptimer));
@@ -219,7 +224,7 @@ int Encoder_Rotation_left(void)
     static int left_num = 0;//左转次数
     left_num++;
     /*  你的代码写在此处  */
-    //printf("left num = %d\r\n",left_num);
+    printf("left num = %d\r\n",left_num);
 
     /*  你的代码写在此处  */
     return left_num;
@@ -244,7 +249,7 @@ int Encoder_Rotation_right(void)
     right_num++;
     /*  你的代码写在此处  */
 
-    //printf("right num = %d\r\n",right_num);
+    printf("right num = %d\r\n",right_num);
     /*  你的代码写在此处  */
 
     return right_num;
