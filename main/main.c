@@ -65,18 +65,20 @@ void app_main(void)
             {
                 if( dat == 2 )
                 {
-                    Encoder_Rotation_left();
+                    //Encoder_Rotation_right();
+                    ledc_set_frequency_para(Encoder_Rotation_right());
                 }
                 else
                 {
-                    Encoder_Rotation_right();
+                    //Encoder_Rotation_left();
+                    ledc_set_frequency_para(Encoder_Rotation_left());
                 }
 
             }
          }
 
         // printf("blockyang test\n");
-        // ledc_get_frequency();
+        //ledc_get_frequency();
     }
     // should not run below code
     for (int i = 10; i >= 0; i--) {

@@ -60,6 +60,11 @@ void ledc_set_frequency(void) {
     ledc_set_freq(LEDC_LOW_SPEED_MODE,LEDC_TIMER_0,5000);
 }
 
+void ledc_set_frequency_para(int freq) {
+    ledc_set_freq(LEDC_LOW_SPEED_MODE,LEDC_TIMER_0,freq);
+}
+
+
 /*
  * @brief 呼吸效果 渐亮到渐灭
  * 

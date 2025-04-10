@@ -7,6 +7,7 @@ typedef struct {
 } example_queue_element_t;
 
 QueueHandle_t encoder_queue = NULL;
+static int pwm_freq = 1000;
 static bool example_timer_on_alarm_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx)
 {
     BaseType_t high_task_awoken = pdFALSE;
@@ -225,9 +226,11 @@ int Encoder_Rotation_left(void)
     left_num++;
     /*  你的代码写在此处  */
     printf("left num = %d\r\n",left_num);
-
+    pwm_freq--;
+    printf("pwm_freq = %d\r\n",pwm_freq);
     /*  你的代码写在此处  */
-    return left_num;
+    //return left_num;
+    return (pwm_freq*10 > 0) ? pwm_freq * 10 : 0;
 }
 
 void Encoder_Key_Down(void)
@@ -246,13 +249,16 @@ void Encoder_Key_Down(void)
 int Encoder_Rotation_right(void)
 {
     static int right_num = 0;//右转次数
-    right_num++;
-    /*  你的代码写在此处  */
 
+    right_num++;
     printf("right num = %d\r\n",right_num);
     /*  你的代码写在此处  */
+    pwm_freq++;
+    printf("pwm_freq = %d\r\n",pwm_freq);
+   
+    /*  你的代码写在此处  */
 
-    return right_num;
+    return (pwm_freq*10 < 9000)?pwm_freq * 10 : 9000;
 }
 
 

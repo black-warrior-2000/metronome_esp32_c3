@@ -24,6 +24,7 @@ extern "C" {
 void ledc_init(void);
 void ledc_set_frequency(void);
 void ledc_get_frequency(void);
+void ledc_set_frequency_para(int freq);
 
 #ifdef __cplusplus
 }
